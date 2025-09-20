@@ -1,51 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Thanos JS</title>
-    <link href="styles.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A demo site to use with Netlify Drop">
-    <meta name="keywords" content="Thanos, JavaScript, Paradoy, Netlify Drop">
-    <meta name="author" content="Rafael Conde">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VVFORMULAS - Stream Anything</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body {background:#111;color:#fff;}
+    
+    /* Header */
+    .header {
+      position:fixed;top:0;width:100%;z-index:1000;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:15px 30px;background:rgba(0,0,0,0.8);
+    }
+    .logo {font-size:26px;font-weight:bold;color:#00b7eb;}
+    .nav a {color:#fff;text-decoration:none;margin:0 12px;font-size:15px;}
+    .nav a:hover {color:#00b7eb;}
+    .search input {
+      padding:6px 10px;border:none;border-radius:4px;
+      outline:none;width:160px;
+    }
+    .user-profile {display:flex;align-items:center;}
+    .user-profile img {width:32px;height:32px;border-radius:4px;margin-left:10px;}
+    
+    /* Hero */
+    .hero {
+      height:80vh;display:flex;align-items:center;justify-content:center;
+      background:url("https://images.unsplash.com/photo-1616530940355-351fabd68c5b") center/cover no-repeat;
+      position:relative;text-align:center;
+    }
+    .hero::before {
+      content:"";position:absolute;inset:0;background:rgba(0,0,0,0.6);
+    }
+    .hero-content {position:relative;z-index:1;max-width:600px;}
+    .hero-content h1 {font-size:42px;margin-bottom:15px;}
+    .hero-content p {font-size:18px;margin-bottom:25px;}
+    .hero-content button {
+      padding:12px 24px;border:none;border-radius:4px;
+      background:#00b7eb;color:#fff;font-size:18px;cursor:pointer;
+    }
+    .hero-content button:hover {background:#0097c9;}
+    
+    /* Content Grid */
+    .content-section {padding:100px 40px 40px;}
+    .content-section h2 {margin-bottom:20px;}
+    .content-grid {
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:20px;
+    }
+    .content-card {
+      position:relative;overflow:hidden;border-radius:8px;cursor:pointer;
+    }
+    .content-card img {width:100%;height:auto;transition:0.3s;}
+    .content-card:hover img {transform:scale(1.1);}
+    .overlay {
+      position:absolute;inset:0;background:rgba(0,0,0,0.6);
+      display:flex;justify-content:center;align-items:center;
+      opacity:0;transition:0.3s;
+    }
+    .content-card:hover .overlay {opacity:1;}
+    .overlay span {font-size:16px;}
+    
+    /* Modal Player */
+    .modal {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);
+      z-index:2000;justify-content:center;align-items:center;flex-direction:column;
+    }
+    .modal video {max-width:90%;max-height:70%;border:3px solid #00b7eb;border-radius:8px;}
+    .close-btn {
+      margin-top:20px;padding:10px 20px;background:#00b7eb;color:#fff;border:none;
+      border-radius:4px;cursor:pointer;
+    }
+    
+    /* Footer */
+    .footer {background:#000;text-align:center;padding:15px;color:#777;font-size:13px;margin-top:40px;}
+    
+    @media(max-width:600px){
+      .hero-content h1{font-size:28px;}
+      .hero-content p{font-size:14px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">VVFORMULAS</div>
+    <nav class="nav">
+      <a href="#">Home</a><a href="#">Movies</a><a href="#">Series</a><a href="#">Trending</a><a href="#">Favorites</a>
+    </nav>
+    <div class="search"><input type="text" id="search" placeholder="Search..."></div>
+    <div class="user-profile">
+      <a href="#">Profile</a>
+      <img src="https://via.placeholder.com/32" alt="user"/>
+    </div>
+  </header>
+  
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Featured: Ultimate Action Saga</h1>
+      <p>Epic stories & adventures with VVFORMULAS</p>
+      <button id="featuredBtn">Stream Now</button>
+    </div>
+  </section>
+  
+  <!-- Content -->
+  <section class="content-section">
+    <h2>Popular on VVFORMULAS</h2>
+    <div class="content-grid" id="contentGrid">
+      <div class="content-card" data-video="https://www.w3schools.com/html/mov_bbb.mp4">
+        <img src="https://via.placeholder.com/200x300?text=Movie+1" alt="Movie 1"/>
+        <div class="overlay"><span>▶ Watch Now</span></div>
+      </div>
+      <div class="content-card" data-video="https://www.w3schools.com/html/movie.mp4">
+        <img src="https://via.placeholder.com/200x300?text=Movie+2" alt="Movie 2"/>
+        <div class="overlay"><span>▶ Watch Now</span></div>
+      </div>
+      <div class="content-card" data-video="https://www.w3schools.com/html/mov_bbb.mp4">
+        <img src="https://via.placeholder.com/200x300?text=Movie+3" alt="Movie 3"/>
+        <div class="overlay"><span>▶ Watch Now</span></div>
+      </div>
+      <!-- Add more movies here -->
+    </div>
+  </section>
+  
+  <!-- Modal -->
+  <div class="modal" id="playerModal">
+    <video id="moviePlayer" controls></video>
+    <button class="close-btn" id="closeModal">Close</button>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 VVFORMULAS. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    // Modal player logic
+    const modal = document.getElementById("playerModal");
+    const player = document.getElementById("moviePlayer");
+    const closeModal = document.getElementById("closeModal");
+    const cards = document.querySelectorAll(".content-card");
+    const featuredBtn = document.getElementById("featuredBtn");
 
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  </head>
-  <body>
-    <div class="titan-background">
-      <span class="stars stars-L"></span>
-      <span class="stars stars-M"></span>
-      <span class="stars stars-S"></span>
-    </div>
-    <div class="marvellous-container">
-      <div class="header">
-        <h1><span class="title-marvel">Thanos</span> <span class="title-studios">JS</span></h1>
-        <h2>
-          Reduce the file size of your project down to 50%, <br />
-          by randomly deleting half of the files.
-        </h2>
-      </div>
-      <div class="installation-instructions">
-        <h3>Installation</h3>
-        <code>$ gem install power</code>
-        <code>$ gem install reality</code>
-        <code>$ gem install mind</code>
-        <code>$ gem install space</code>
-        <code>$ gem install time</code>
-        <code>$ gem install soul</code>
-      </div>
-      <div class="usage-instructions">
-        <h3>Basic Usage</h3>
-        <code>$ thanos snap-fingers --with-glove</code>
-      </div>
-      <div class="footer">
-        <img src="assets/glove.png" alt="thanos gauntlet but its like the classic emoji hands with an awful photoshop of stupid gems on it, because funny"/>
-        <p>
-          This whole site is obviously a parody, <br />
-          just to demo how awesome <a target="_blank" href="https://app.netlify.com/drop">Netlify Drop is — give it a try.</a>
-        </p>
-      </div>
-    </div>
-  </body>
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        let videoSrc = card.getAttribute("data-video");
+        player.src = videoSrc;
+        modal.style.display = "flex";
+        player.play();
+      });
+    });
+
+    featuredBtn.addEventListener("click", () => {
+      player.src = "https://www.w3schools.com/html/movie.mp4";
+      modal.style.display = "flex";
+      player.play();
+    });
+
+    closeModal.addEventListener("click", () => {
+      modal.style.display = "none";
+      player.pause();
+      player.src = "";
+    });
+
+    // Search filter
+    document.getElementById("search").addEventListener("input", e => {
+      const term = e.target.value.toLowerCase();
+      cards.forEach(card => {
+        const title = card.querySelector("img").alt.toLowerCase();
+        card.style.display = title.includes(term) ? "block" : "none";
+      });
+    });
+  </script>
+</body>
 </html>
